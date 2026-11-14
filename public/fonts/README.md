@@ -1,9 +1,5 @@
 # Font attribution
 
-Public web and desktop builds use these self-hosted fonts:
+The interface uses self-hosted **Inter**, by Rasmus Andersson, with Helvetica, Arial, and sans-serif fallbacks. Inter is licensed under SIL Open Font License 1.1; see inter-OFL.txt. Source: https://github.com/google/fonts/tree/main/ofl/inter
 
-- **Russo One**, Jovanny Lemonad — SIL Open Font License 1.1, see russoone-OFL.txt. Source: https://github.com/google/fonts/tree/main/ofl/russoone
-- **Yellowtail**, Astigmatic — Apache License 2.0, see yellowtail-LICENSE.txt. Source: https://github.com/google/fonts/tree/main/apache/yellowtail
-- **Inter**, Rasmus Andersson — SIL Open Font License 1.1, see inter-OFL.txt. Source: https://github.com/google/fonts/tree/main/ofl/inter
-
-The TTF files were retrieved from the Google Fonts stylesheet service. No proprietary master-collection fonts are distributed.
+The wordmark and heading are fixed SVG path artwork. They contain no font files, embedded fonts, or live text. No Eurostile, SignPainter, or Helvetica Neue font files are distributed.
