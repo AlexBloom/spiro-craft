@@ -1,5 +1,7 @@
 # Spiro Craft
 
+[Open the live app](https://alexbloom.design/spiro-craft/) · [GitHub repository](https://github.com/AlexBloom/spiro-craft)
+
 A local geometry playground for the web and macOS. Explore Spirograph curves, understand gear ratios, and export artwork.
 
 ## Use it
@@ -60,3 +62,7 @@ For inside rolling:
 For outside rolling, the base radius is `R + r`, with the pen term adding in both coordinates. The path closes after `r / gcd(R, r)` revolutions. Samples increase with the frequency of the curve, capped at 60,000. The drawing is normalized to its radial bound, preserving the selected export size across different ratios.
 
 All design data stays in the browser or desktop utility. The interface uses self-hosted Inter with Helvetica, Arial, and sans-serif fallbacks. Its license is included in public/fonts/. The Eurostile wordmark and Eurostile/SignPainter heading are fixed outlined SVG artwork with no embedded font files. Private master-collection fonts are excluded from Git and public builds. Geometry and exports work offline in the desktop app.
+
+## Publishing
+
+Develop on `dev`, verify CI, and promote through a pull request to `main`. Run the **Deploy to GitHub Pages** workflow manually from `main` to release. The workflow tests and builds the site with `/spiro-craft/` as the asset base path. GitHub Pages uses the account’s existing `alexbloom.design` domain; no additional DNS changes are needed.
