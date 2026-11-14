@@ -59,4 +59,4 @@ For inside rolling:
 
 For outside rolling, the base radius is `R + r`, with the pen term adding in both coordinates. The path closes after `r / gcd(R, r)` revolutions. Samples increase with the frequency of the curve, capped at 60,000. The drawing is normalized to its radial bound, preserving the selected export size across different ratios.
 
-All design data stays in the browser or desktop utility. Public builds use self-hosted Russo One (display), Yellowtail (script), and Inter (interface). Font licenses are included in public/fonts/. Private master-collection fonts are excluded from Git and public builds. Geometry and exports work offline in the desktop app.
+All design data stays in the browser or desktop utility. The interface uses self-hosted Inter with Helvetica, Arial, and sans-serif fallbacks. Its license is included in public/fonts/. The Eurostile wordmark and Eurostile/SignPainter heading are fixed outlined SVG artwork with no embedded font files. Private master-collection fonts are excluded from Git and public builds. Geometry and exports work offline in the desktop app.
