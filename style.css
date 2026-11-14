@@ -75,3 +75,16 @@ button:active:not(:disabled){filter:brightness(.92)}
 .brand .brand-wordmark{width:220px;height:auto;border-radius:0}.intro>div{min-width:0}.headline-art{display:block;width:490px;max-width:100%;height:auto}
 @media(max-width:560px){.brand .brand-wordmark{width:185px}}
 @media(max-width:360px){.brand .brand-wordmark{width:150px}}
+/* Compact workspace header. */
+header{height:76px;gap:16px}.header-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}.header-actions .shuffle{margin:0}
+main{padding-top:18px}
+@media(max-width:1100px){main{padding-top:18px}}
+@media(max-width:560px){
+ header{height:68px;padding:0 16px;gap:10px}.header-actions{gap:6px}.header-actions .shuffle{width:44px;min-height:44px;padding:8px}
+ .brand{gap:8px}.brand>img:first-child{width:28px;height:28px}.brand .brand-wordmark{width:150px}
+ main{padding-top:12px}
+}
+@media(max-width:360px){
+ header{padding:0 12px;gap:8px}.brand{gap:6px}.brand>img:first-child{width:24px;height:24px}.brand .brand-wordmark{width:115px}
+ #save{font-size:9px;padding:8px}#save>span{display:none}
+}
