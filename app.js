@@ -1,3 +1,4 @@
+import {animateTrace} from './trace.mjs';
 import {createProject,validateProject,activeLayer,addLayer,moveLayer,removeLayer,restoreLayer,layerMarkup,projectSvg} from './layers.mjs';
 import {mountLayerPanel} from './layers-panel.jsx';
 import {INKS} from './appearance.mjs';
@@ -11,7 +12,7 @@ function layerResult(layer){const key=JSON.stringify(layer.settings),cached=geom
 const renderLayers=mountLayerPanel(layerAction);
 try{const saved=localStorage.getItem('spiro-craft');if(saved){const data=JSON.parse(saved);const oldInks={'#df633f':'#c92e32','#282e32':'#202124','#537c68':'#167447','#5877ac':'#2356b2','#9a6b9e':'#c92e32'};if(oldInks[data.color])data.color=oldInks[data.color];project=validateProject(data);state=activeLayer(project).settings;}}catch{}
 function toast(message){$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),3000);}
-function stopTrace(){if(animation)animation.cancel();animation=null;animating=false;$('geometry').style.strokeDasharray='';$('geometry').style.strokeDashoffset='';$('animate').textContent='▷ Trace the pattern';}
+function stopTrace(){if(animation)animation.cancel();animation=null;animating=false;$('animate').textContent='▷ Trace the pattern';const n=project.layers.filter(l=>l.visible).length;$('pattern-status').textContent=n+' visible '+(n===1?'layer':'layers');}
 function update(){
  stopTrace();activeLayer(project).settings=state;result=layerResult(activeLayer(project));const {p,scale}=result;
  $('layer-art').innerHTML=project.layers.map((layer,i)=>layerMarkup(layer,layerResult(layer),{prefix:'preview-layer-'+i,active:layer.id===project.activeLayerId})).join('');
@@ -34,7 +35,7 @@ function update(){
  $('fold-copy').textContent=p.fold===Infinity?'A centered pen traces a simple circle.':'Repeating lobes.';
  const visible=project.layers.filter(l=>l.visible),count=visible.reduce((sum,l)=>sum+layerResult(l).count,0);
  $('pattern-status').textContent=visible.length+' visible '+(visible.length===1?'layer':'layers');
- $('animate').disabled=!activeLayer(project).visible;
+ $('animate').disabled=!visible.some(l=>l.settings.opacity>0);
  $('export-svg').disabled=$('export-png').disabled=!visible.length;
  $('point-count').textContent=count.toLocaleString()+' points';$('design-code').textContent=String(p.numerator).padStart(3,'0')+' / '+String(p.denominator).padStart(3,'0');
  $('drawing').setAttribute('aria-label',`${visible.length} visible layers. Selected: ${p.fold===Infinity?'Circular':p.fold+'-fold'} Spirograph pattern, gear ratio ${p.numerator} to ${p.denominator}`);
@@ -76,7 +77,18 @@ $('reset').addEventListener('click',()=>{state={...defaults};zoom=1;$('zoom-rese
 $('randomize').addEventListener('click',()=>{const folds=[6,12,24];state.fold=folds[Math.floor(Math.random()*3)];const choices=validWindings(state.fold);state.winding=choices[Math.floor(Math.random()*choices.length)];state.offset=40+Math.floor(Math.random()*140);if(state.mode==='free'){state.outer=25+Math.floor(Math.random()*216);state.inner=5+Math.floor(Math.random()*Math.min(115,state.outer-5));state.curve=Math.random()>.5?'inside':'outside';}state.color=INKS[Math.floor(Math.random()*INKS.length)].color;update();toast('A little serendipity.');});
 function setZoom(n){zoom=Math.max(.5,Math.min(2,n));$('art').setAttribute('transform',`scale(${zoom})`);$('zoom-reset').textContent=Math.round(zoom*100)+'%';}
 $('zoom-in').addEventListener('click',()=>setZoom(zoom+.1));$('zoom-out').addEventListener('click',()=>setZoom(zoom-.1));$('zoom-reset').addEventListener('click',()=>setZoom(1));
-$('animate').addEventListener('click',()=>{if(animating){stopTrace();return;}const path=$('geometry'),length=path.getTotalLength();path.style.strokeDasharray=length;animating=true;$('animate').textContent='Ⅱ Stop tracing';animation=path.animate([{strokeDashoffset:length},{strokeDashoffset:0}],{duration:Math.min(18000,Math.max(4500,result.p.turns*1100)),easing:'linear',fill:'forwards'});animation.onfinish=()=>stopTrace();});
+$('animate').addEventListener('click',()=>{
+ if(animating){stopTrace();return;}
+ const paths=Array.from($('layer-art').querySelectorAll('path'));
+ const visible=project.layers.map((layer,i)=>({layer,path:paths[i],result:layerResult(layer)})).filter(({layer})=>layer.visible&&layer.settings.opacity>0);
+ if(!visible.length)return;
+ animating=true;$('animate').textContent='Ⅱ Stop tracing';
+ animation=animateTrace(visible.map(({path,result})=>({path,points:result.points})),{
+  duration:Math.min(30000,Math.max(4500,visible.reduce((n,{result})=>n+result.p.turns,0)*1100)),
+  onLayerChange:(index,total)=>{$('pattern-status').textContent=`Tracing layer ${index} of ${total}`;},
+  onFinish:stopTrace,
+ });
+});
 function download(blob,name){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);}
 function name(ext){return `spiro-craft-${result.p.numerator}-${result.p.denominator}.${ext}`;}
 function svgSource(pixels){return projectSvg(project,pixels,{transparent:$('transparent').checked,generate});}
