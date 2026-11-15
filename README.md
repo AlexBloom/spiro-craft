@@ -16,7 +16,7 @@ The ratio panel reduces R:r by its greatest common divisor, explains rotational 
 
 The default pen palette is red, green, blue, and black, with a custom-color picker. Optional paper tooth textures the ink strokes with Hot press (Smooth), Cold press (Medium), and Rough (Coarse) finishes with adjustable strength. Paper settings persist in saved designs.
 
-Change the drawing size, ink color, and line weight; display construction guides; zoom the preview; or watch the curve trace itself. The last design is restored locally when you reopen the app. **Save design** downloads an editable JSON file; **Open saved design** restores it.
+Change the drawing size, ink color, and line weight; display construction guides; zoom the preview; or trace the drawing from one moving endpoint. Playback draws visible layers in order, following the distance along each curve. Stopping restores the complete drawing; exports always use complete geometry. The last design is restored locally when you reopen the app. **Save design** downloads an editable JSON file; **Open saved design** restores it.
 
 SVG export is resolution independent. PNG sizes are 1200, 2400, and 4800 pixels square. Both support transparent backgrounds. Paper tooth affects only the ink strokes in both preview and exports. No paper-grain background is generated; transparent exports retain textured ink on transparency. Exports contain the artwork, without canvas dots or construction guides. Zoom only changes the preview; drawing size controls the exported composition.
 

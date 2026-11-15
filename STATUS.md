@@ -9,3 +9,5 @@
 - Desktop app remains unsigned; signing/notarization and Windows/Linux builds are not configured.
 
 Header update: tagline removed, workspace spacing reduced, icon matched to the wordmark color, and Surprise me moved before Save design in the header. Sixteen tests pass; static and desktop builds pass; 320px layout fits. Production deployment 43652061356 succeeded and live HTML/browser verification passed.
+
+Animation fix prepared on dev: replace the SVG dash reveal with distance-based open path prefixes and trace all visible, nonzero-opacity layers sequentially. Stop, completion, and setting/layer edits restore full paths. Exports remain complete during playback. Twenty-one tests pass; production has not yet been updated with this fix.
