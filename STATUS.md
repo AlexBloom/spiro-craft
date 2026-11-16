@@ -1,5 +1,7 @@
 # Spiro Craft status
 
+Latest production release: PR #8 merged at `2551725709fb35a0c90c07d743d441a5e39d401f` and deployed successfully on November 16, 2026. Workflow: https://github.com/AlexBloom/spiro-craft/actions/runs/43946382222. Live: https://alexbloom.design/spiro-craft/. The release includes the full-window workspace, mobile tool dock, precision fields, inline layer renaming, ratio tips, outlined menu headings, 12px/14px typography minimums, shared paper tooth, ink blending, and SVG/PNG/JPG exports. Release workflow tests/build/deploy passed. Live HTML, hashed JavaScript/CSS, and all seven menu title SVGs return HTTP 200; the latest ratio, blending, and type-size code was confirmed in the served assets.
+
 - Public repository: https://github.com/AlexBloom/spiro-craft
 - Web: Vite static build. Desktop: Electron for macOS Apple Silicon.
 - Tests: 25 passing, covering geometry, layer operations, save validation, textures, composite exports, and LAN HTTP compatibility.
