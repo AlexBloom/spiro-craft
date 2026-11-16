@@ -30,7 +30,7 @@ SVG and PNG exports combine all visible layers in stack order, with each layerâ€
 
 ## Phone preview
 
-Run `npm run dev -- --host 0.0.0.0` and open the printed Network URL on a phone connected to the same Wi-Fi. Layer IDs support plain HTTP network addresses as well as localhost. On narrow screens the drawing stays visible above the controls while scrolling. Sliders and buttons have enlarged touch targets, and text fields avoid iOS focus zoom.
+Run `npm run dev -- --host 0.0.0.0` and open the printed Network URL on a phone connected to the same Wi-Fi. Layer IDs support plain HTTP network addresses as well as localhost. On narrow screens the canvas fills the workspace above a six-tool dock: Geometry, Ink, Transform, Paper, Layers, and Export. Tap a tool, then choose an adjustment; only one slider appears at a time. Fixed gear and Rolling gear have separate adjustments in Freeform mode. Tap Done, the canvas, or the active tool to dismiss the panel. Geometry also includes construction guides and a compact ratio readout. Touch targets are enlarged, and text fields avoid iOS focus zoom.
 
 ## Development
 
