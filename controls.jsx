@@ -3,6 +3,7 @@ import {createRoot} from 'react-dom/client';
 import {flushSync} from 'react-dom';
 import {Slider} from './components/ui/slider.jsx';
 import {Switch} from './components/ui/switch.jsx';
+import {PrecisionInput} from './precision-input.jsx';
 import {Button} from './components/ui/button.jsx';
 // Small React roots keep the existing SVG workspace and geometry engine intact.
 export function mountControls(){
@@ -11,8 +12,9 @@ export function mountControls(){
   const label=document.querySelector(`label[for="${input.id}"]`);
   const mount=document.createElement('div');mount.className='slider-mount';input.after(mount);input.hidden=true;input.tabIndex=-1;
   const thumbId=input.id+'-thumb';if(label)label.htmlFor=thumbId;
-  const root=createRoot(mount);
-  renders.push(()=>root.render(<Slider thumbId={thumbId} aria-label={label?.textContent||input.id} min={Number(input.min)} max={Number(input.max)} step={Number(input.step)} value={[Number(input.value)]} onValueChange={([value])=>{input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));}}/>));
+  const root=createRoot(mount),valueRoot=createRoot(document.getElementById(input.id+'-value'));
+  const change=value=>{input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));};
+  renders.push(()=>{const props={label:label?.textContent||input.id,min:Number(input.min),max:Number(input.max),step:Number(input.step),value:Number(input.value),onChange:change};root.render(<Slider thumbId={thumbId} aria-label={props.label} min={props.min} max={props.max} step={props.step} value={[props.value]} onValueChange={([value])=>change(value)}/>);valueRoot.render(<PrecisionInput {...props} unit={input.id==='stroke'?'pt':input.id==='rotation'?'°':['offset','size','grainAmount','opacity'].includes(input.id)?'%':''}/>);});
  }
  for(const input of document.querySelectorAll('input[role="switch"]')){
   const mount=document.createElement('span');input.after(mount);input.hidden=true;
