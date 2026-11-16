@@ -24,7 +24,7 @@ SVG export is resolution independent. PNG sizes are 1200, 2400, and 4800 pixels 
 
 Use **+ Add** in the Layers panel to stack a new pattern. Click a layer to edit its geometry, ink, line weight, size, rotation, opacity, and paper tooth with the main controls. New layers start slightly smaller and use the next kit ink. The top row is the topmost layer.
 
-Rename the selected layer with the name field. Duplicate it, move it up or down, hide it with the circle button, or delete it. **Undo delete** restores the most recently deleted layer. A design supports up to 24 layers and always keeps at least one. **Reset** resets only the selected layer; **Surprise me** changes only that layer and caps its line weight at 2.9 pt. Older saved designs with heavier strokes open at the current 5 pt maximum.
+Click or tap a layer name to rename it in place. Enter or tapping away saves; Escape cancels. Duplicate the selected layer, move it up or down, hide it with the circle button, or delete it. **Undo delete** restores the most recently deleted layer. A design supports up to 24 layers and always keeps at least one. **Reset** resets only the selected layer; **Surprise me** changes only that layer and caps its line weight at 2.9 pt. Older saved designs with heavier strokes open at the current 5 pt maximum.
 
 SVG and PNG exports combine all visible layers in stack order, with each layer’s texture and transformations. Export is disabled when every layer is hidden. Save/Open design preserves the entire stack and selected layer. Older single-pattern JSON files open as one-layer designs.
 

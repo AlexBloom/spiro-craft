@@ -15,3 +15,5 @@ Animation fix prepared on dev: replace the SVG dash reveal with distance-based o
 Mobile editing update prepared on dev: canvas-first six-tool dock with one adjustment slider at a time, separate fixed/rolling gear controls, shared layer controls, paper tooth, and export options. Done, the active tool, a canvas tap, or Escape dismisses the panel. Checked at 320 × 568 and 390 × 844 with working geometry updates, paper controls, layer operations, and PNG export. Desktop controls retain their existing layout. Not deployed to production.
 
 Line weight update prepared on dev: desktop/mobile sliders cap at 5 pt; older saved strokes up to 10 pt load at 5 pt. Surprise me retains lighter strokes and caps heavier strokes at 2.9 pt in both geometry modes.
+
+Removed the layer-name text field beneath the layer list from the shared desktop/mobile panel. Renaming now happens inline by clicking or tapping the layer name. Enter or blur saves; Escape cancels. Existing saved layer names are preserved.
