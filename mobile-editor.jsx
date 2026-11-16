@@ -6,6 +6,8 @@ import {Switch} from './components/ui/switch.jsx';
 import {ExportPanel} from './export-panel.jsx';
 import {LayerPanel} from './layers-panel.jsx';
 import {INKS,PAPERS} from './appearance.mjs';
+import {PrecisionInput} from './precision-input.jsx';
+import {MenuTitle} from './menu-title.jsx';
 import {defaults} from './geometry.mjs';
 
 const tools=[['geometry','Geometry'],['ink','Ink'],['transform','Transform'],['paper','Paper'],['layers','Layers'],['export','Export']];
@@ -38,9 +40,9 @@ function Adjustment({setting,state,onChange,disabled=false}){
  const config={...adjustments[setting]};
  if(setting==='winding')config.max=state.fold-1;
  if(setting==='inner'&&state.curve==='inside')config.max=Math.min(config.max,state.outer-1);
- const value=state[setting],display=setting==='stroke'?value.toFixed(1):value;
+ const value=state[setting];
  return <div className="mobile-adjustment">
-  <div className="mobile-adjustment-title"><label htmlFor={'mobile-'+setting}>{config.label}</label><output>{display}{config.unit||''}</output><Button variant="ghost" className="mobile-reset-control" aria-label={'Reset '+config.label.toLowerCase()} title="Reset adjustment" onClick={()=>onChange(setting,defaults[setting])}>↺</Button></div>
+  <div className="mobile-adjustment-title"><label htmlFor={'mobile-'+setting}>{config.label}</label><PrecisionInput label={config.label} value={value} min={config.min} max={config.max} step={config.step} unit={config.unit?.trim()} disabled={disabled} onChange={value=>onChange(setting,value)}/><Button variant="ghost" className="mobile-reset-control" aria-label={'Reset '+config.label.toLowerCase()} title="Reset adjustment" onClick={()=>onChange(setting,defaults[setting])}>↺</Button></div>
   <Slider thumbId={'mobile-'+setting} aria-label={config.label} min={config.min} max={config.max} step={config.step} value={[value]} disabled={disabled} onValueChange={([value])=>onChange(setting,value)}/>
   <div className="mobile-range-labels"><span>{config.min}{config.unit||''}</span><span>{config.max}{config.unit||''}</span></div>
  </div>;
@@ -64,12 +66,12 @@ function MobileEditor({project,state,p,canUndo,exportProps,onChange,onAction,onL
  const selected=tool==='geometry'?(geometryOptions.some(([key])=>key===options.geometry)?options.geometry:geometryOptions[0][0]):options[tool];
  return <div className={'mobile-editor'+(tool?' editing':'')}>
   {tool&&<section id="mobile-tool-panel" className="mobile-tool-panel" role="region" aria-label={tools.find(([key])=>key===tool)[1]+' controls'}>
-   <div className="mobile-panel-heading"><div><h2>{tools.find(([key])=>key===tool)[1]}</h2><span>{tool==='paper'?'All layers':<><i style={{background:state.color}}/>{active.name||'Untitled layer'}</>}</span></div><Button variant="ghost" className="mobile-done" aria-label="Dismiss controls" onClick={close}>Done <span aria-hidden="true">⌄</span></Button></div>
+   <div className="mobile-panel-heading"><div><h2><MenuTitle label={tools.find(([key])=>key===tool)[1]}/></h2><span>{tool==='paper'?'All layers':<><i style={{background:state.color}}/>{active.name||'Untitled layer'}</>}</span></div><Button variant="ghost" className="mobile-done" aria-label="Dismiss controls" onClick={close}>Done <span aria-hidden="true">⌄</span></Button></div>
    {tool==='geometry'&&<>
     <div className="mobile-mode" aria-label="Geometry mode"><Button variant="ghost" aria-pressed={state.mode==='guided'} onClick={()=>onChange('mode','guided')}>Symmetry</Button><Button variant="ghost" aria-pressed={state.mode==='free'} onClick={()=>onChange('mode','free')}>Freeform</Button></div>
     <OptionBar options={geometryOptions} value={selected} onChange={choose}/>
     {selected==='fold'?<div className="mobile-folds">{[[6,'Simple'],[12,'Balanced'],[24,'Intricate']].map(([fold,name])=><Button key={fold} variant="ghost" aria-label={fold+'-fold symmetry'} aria-pressed={state.fold===fold} onClick={()=>onChange('fold',fold)}><b>{fold}</b><span>{name}</span></Button>)}</div>:selected==='guides'?<div className="mobile-paper-toggle"><label htmlFor="mobile-guides">Construction guides</label><Switch id="mobile-guides" checked={state.guides} onCheckedChange={value=>onChange('guides',value)}/></div>:selected==='direction'?<div className="mobile-choice-row"><Button variant="ghost" aria-pressed={state.curve==='inside'} onClick={()=>onChange('curve','inside')}>Inside</Button><Button variant="ghost" aria-pressed={state.curve==='outside'} onClick={()=>onChange('curve','outside')}>Outside</Button></div>:<Adjustment setting={selected} state={state} onChange={onChange}/>}
-    <div className="mobile-geometry-foot"><span>{p.numerator}:{p.denominator} <span>·</span> {p.fold===Infinity?'Circular':p.fold+'-fold'} <span>·</span> {p.turns} {p.turns===1?'turn':'turns'}</span><Button variant="ghost" onClick={()=>onAction('reset')}>Reset layer</Button></div>
+    <div className="mobile-geometry-foot"><Button variant="ghost" onClick={()=>onAction('reset')}>Reset layer</Button></div>
    </>}
    {tool==='ink'&&<><OptionBar options={[['color','Color'],['stroke','Weight'],['opacity','Opacity']]} value={selected} onChange={choose}/>{selected==='color'?<div className="mobile-colors">{INKS.map(({name,color})=><Button key={color} variant="ghost" aria-label={name+' ink'} aria-pressed={state.color===color} className="mobile-ink-swatch" style={{'--swatch':color}} onClick={()=>onChange('color',color)}/>) }<label className="mobile-custom-color" title="Custom ink">+<input type="color" value={state.color} aria-label="Custom mobile ink color" onChange={e=>onChange('color',e.target.value)}/></label></div>:<Adjustment setting={selected} state={state} onChange={onChange}/>}</>}
    {tool==='transform'&&<><OptionBar options={[['size','Size'],['rotation','Rotate']]} value={selected} onChange={choose}/><Adjustment setting={selected} state={state} onChange={onChange}/></>}

@@ -1,3 +1,4 @@
+import {mountCanvasRatio} from './canvas-ratio.jsx';
 import {mountExportPanel} from './export-panel.jsx';
 import {mountMobileEditor} from './mobile-editor.jsx';
 import {animateTrace} from './trace.mjs';
@@ -12,6 +13,7 @@ let project=createProject(),state=activeLayer(project).settings,zoom=1,result,an
 const geometryCache=new Map();
 function layerResult(layer){const key=JSON.stringify(layer.settings),cached=geometryCache.get(layer.id);if(cached?.key===key)return cached.result;const result=generate(layer.settings);geometryCache.set(layer.id,{key,result});return result;}
 const renderLayers=mountLayerPanel(layerAction);
+const renderRatio=mountCanvasRatio();
 const renderMobile=mountMobileEditor({onChange:mobileChange,onAction:id=>$(id).click(),onLayerAction:layerAction});
 const renderExport=mountExportPanel();
 function syncMobile(){const exportProps={format:exportFormat,size:exportSize,transparent:exportTransparent,busy:rasterBusy,canExport:project.layers.some(layer=>layer.visible),onChange:exportChange,onExport:exportArtwork,onSave:saveDesign,onLoad:()=>$('load-file').click()};renderExport(exportProps);renderMobile({project,state:{...state,...project.paperSettings},p:result.p,canUndo:Boolean(removedLayer),exportProps});}
@@ -42,21 +44,15 @@ function update(){
  for(const key of ['winding','outer','inner','offset','size','stroke','grainAmount','rotation','opacity']){
   const value=key==='grainAmount'?project.paperSettings.grainAmount:state[key];
   const el=$(key);el.value=value;el.style.setProperty('--progress',`${(value-Number(el.min))/(Number(el.max)-Number(el.min))*100}%`);
-  $(key+'-value').textContent=['offset','grainAmount','opacity'].includes(key)?value+'%':key==='size'?value+'%':key==='stroke'?value.toFixed(1)+' pt':key==='rotation'?value+'°':value;
  }
  $('paperGrain').checked=project.paperSettings.paperGrain;$('paper').value=project.paperSettings.paper;$('paper-options').hidden=!project.paperSettings.paperGrain;
  $('curve').value=state.curve;$('guides').checked=state.guides;$('custom-color').value=state.color;
  document.querySelectorAll('[data-color]').forEach(el=>{const active=el.dataset.color===state.color;el.classList.toggle('active',active);el.setAttribute('aria-pressed',active);});
- $('ratio-r').textContent=p.numerator;$('ratio-s').textContent=p.denominator;$('ratio-track').style.width=`${p.R/(p.R+p.r)*100}%`;
- $('fold-stat').textContent=p.fold===Infinity?'∞':p.fold;$('turn-stat').textContent=p.turns;
- $('fold-label').textContent=p.fold===Infinity?'circular symmetry':'fold symmetry';
- $('fold-copy').textContent=p.fold===Infinity?'A centered pen traces a simple circle.':'Repeating lobes.';
  const visible=project.layers.filter(l=>l.visible),count=visible.reduce((sum,l)=>sum+layerResult(l).count,0);
  $('pattern-status').textContent=visible.length+' visible '+(visible.length===1?'layer':'layers');
  $('animate').disabled=!visible.some(l=>l.settings.opacity>0);
- $('point-count').textContent=count.toLocaleString()+' points';$('design-code').textContent=String(p.numerator).padStart(3,'0')+' / '+String(p.denominator).padStart(3,'0');
+ $('point-count').textContent=count.toLocaleString()+' points';renderRatio(p);
  $('drawing').setAttribute('aria-label',`${visible.length} visible layers. Selected: ${p.fold===Infinity?'Circular':p.fold+'-fold'} Spirograph pattern, gear ratio ${p.numerator} to ${p.denominator}`);
- $('explanation').textContent=p.d===0?'A centered pen traces a circle.':`${state.mode==='guided'&&p.fold!==state.fold?state.fold+':'+state.winding+' → ':''}${p.numerator}:${p.denominator}. ${p.fold} lobes, ${p.turns} ${p.turns===1?'turn':'turns'} to close.${state.mode==='guided'&&p.fold!==state.fold?' Shared factors simplify the symmetry.':''}`;
  $('guide-layer').innerHTML=state.guides?`<g fill="none" stroke="#a3a897" stroke-width="1" stroke-dasharray="5 6"><circle r="${p.R*scale}"/><circle cx="0" cy="${-p.base*scale}" r="${p.r*scale}"/><path d="M -500 0 H 500 M 0 -500 V 500" opacity=".4"/><path d="M 0 ${-p.base*scale} V ${-(p.base+p.d)*scale}"/></g><circle cx="0" cy="${-(p.base+p.d)*scale}" r="4" fill="${state.color}"/>`:'';
  $('guide-layer').setAttribute('transform',`rotate(${state.rotation})`);
  syncMobile();

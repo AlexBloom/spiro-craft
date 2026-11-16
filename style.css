@@ -218,3 +218,49 @@ main{height:100dvh}
 @media(max-width:850px){main{height:min(100dvh,var(--editor-viewport,100dvh))}}
 
 .paper-scope{font-size:9px;color:var(--muted);margin-left:5px}
+/* Menus frame the drawing; ratio notes live on the canvas. */
+.menu-title{display:block;width:auto;height:10px;max-width:100%;object-fit:contain;object-position:left center}
+h2:has(.menu-title){display:flex;align-items:center;gap:6px;min-height:20px;margin:0}
+.section-heading,.mobile-panel-heading{min-height:24px}
+.precision-control{display:inline-flex;align-items:center;gap:3px;color:var(--ink);font:11px ui-monospace,monospace;flex-shrink:0}
+.precision-control input{width:59px;min-width:0;padding:4px 3px;text-align:right;border:1px solid transparent;border-radius:4px;background:#e9e6dc77;color:inherit;font:inherit;font-variant-numeric:tabular-nums;appearance:textfield}
+.precision-control input::-webkit-inner-spin-button,.precision-control input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.precision-control input:hover{border-color:var(--line)}.precision-control input:focus{border-color:var(--orange);outline:none;background:#fffdf7}
+.precision-control>span{font-size:9px;color:var(--muted)}
+.control-title{gap:5px}.precision-mount{display:inline-flex;flex-shrink:0}
+.canvas-signature{left:18px;bottom:15px;z-index:3;font:inherit;color:var(--ink)}
+.canvas-ratio{display:flex;align-items:center;gap:2px;width:max-content}
+.ratio-part{position:relative;display:inline-flex}
+.ratio-part>button{min-width:32px;min-height:36px;padding:4px;border:0;border-bottom:1px dotted #aaa79a;border-radius:0;background:#f8f7f2d9;font:500 18px ui-monospace,monospace;color:var(--ink);cursor:help}
+.ratio-divider{font:18px ui-monospace,monospace}
+.ratio-tip{display:none;position:absolute;bottom:calc(100% + 9px);left:0;background:var(--ink);color:#fbfaf6;border-radius:6px;padding:11px 13px;min-width:205px;font:10px var(--font);box-shadow:0 4px 18px #0002;z-index:5;pointer-events:none}
+.ratio-tip>span{display:flex;justify-content:space-between;gap:16px;line-height:1.8;white-space:nowrap}.ratio-tip b{font-weight:500;color:#e3d0b1}
+.ratio-part.open .ratio-tip,.ratio-part:has(>button:focus-visible) .ratio-tip{display:block}
+@media(hover:hover){.ratio-part:hover .ratio-tip{display:block}}
+@media(min-width:851px){
+ .workbench{grid-template-columns:230px minmax(0,1fr) 250px}
+ .controls{display:flex;flex-direction:column}
+ .controls>.toggle-row{margin:6px 0 22px;font-size:10px}
+ .controls>#layers-panel{margin-top:auto;padding-top:20px;border-top:1px solid var(--line)}
+ .controls .layers-panel{margin:0;padding:0;border:0}
+ .insights{display:flex;flex-direction:column}
+ .appearance-controls{flex:1;min-height:0;overflow:auto;scrollbar-width:thin;padding-right:2px}
+ .appearance-controls .section-heading{margin-bottom:14px}
+ .appearance-controls>.section-heading:has(+.swatches){margin-top:22px;margin-bottom:10px}
+ .appearance-controls .swatches{gap:9px}
+ .paper-section{margin-top:20px;padding-top:14px}.paper-section>.section-heading{margin-bottom:8px}
+ #export-panel{margin-top:18px}
+}
+@media(min-width:1500px){.workbench{grid-template-columns:250px minmax(0,1fr) 270px}}
+@media(max-width:850px){
+ .mobile-panel-heading .menu-title{height:10px}
+ .mobile-adjustment-title .precision-control{font-size:16px}.mobile-adjustment-title .precision-control input{min-height:36px;width:65px;font-size:16px}.mobile-adjustment-title .precision-control>span{font-size:11px}
+ .mobile-adjustment-title>label{min-width:0}
+ .mobile-geometry-foot{justify-content:flex-end}
+ .mobile-tool-panel .layers-panel .section-heading h2 .menu-title{height:9px}
+ .canvas-signature{left:12px;bottom:10px}
+ .ratio-part>button{min-height:40px;font-size:16px;min-width:30px}
+ .ratio-tip{min-width:190px;font-size:10px}
+}
+
+.menu-title{height:10px;width:auto;display:block}
