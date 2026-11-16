@@ -15,9 +15,10 @@ test('freeform reduces ratios for inside and outside curves and closes',()=>{for
 test('drawing respects chosen size and stays finite at extreme settings',()=>{for(const s of [defaults,{...defaults,mode:'free',outer:239,inner:119,offset:220},{...defaults,offset:0},{...defaults,mode:'free',outer:25,inner:120,curve:'outside'}]){const g=generate(s);assert.ok(g.points.every(([x,y])=>Number.isFinite(x)&&Number.isFinite(y)&&Math.hypot(x,y)<=s.size*5+.0001));assert.ok(g.count<=60000);assert.ok(g.path.endsWith('Z'));}});
 test('saved designs validate and reject malformed or unsafe settings',()=>{assert.deepEqual(validateDesign(defaults),defaults);for(const s of [{color:'red" onload="bad'},{outer:NaN},{fold:7},{winding:12},{mode:'free',outer:25,inner:100},{stroke:-1},{outer:25.3}])assert.throws(()=>validateDesign(s));});
 
-test('winding includes every integer step and thick line weights survive save/load',()=>{
+test('winding includes every integer step and line weights cap at 5 pt while older saves still open',()=>{
  for(const fold of [6,12,24])assert.deepEqual(validWindings(fold),Array.from({length:fold-1},(_,i)=>i+1));
  for(const winding of [2,3,4])assert.equal(validateDesign({...defaults,fold:6,winding,stroke:10}).winding,winding);
- assert.equal(validateDesign({...defaults,stroke:10}).stroke,10);
+ assert.equal(validateDesign({...defaults,stroke:5}).stroke,5);
+ assert.equal(validateDesign({...defaults,stroke:10}).stroke,5);
  assert.throws(()=>validateDesign({...defaults,stroke:10.1}));
 });

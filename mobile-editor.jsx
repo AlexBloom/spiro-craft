@@ -13,7 +13,7 @@ const adjustments={
  outer:{label:'Fixed gear',min:25,max:240,step:1},
  inner:{label:'Rolling gear',min:5,max:120,step:1},
  offset:{label:'Pen offset',min:0,max:220,step:1,unit:'%'},
- stroke:{label:'Line weight',min:.3,max:10,step:.1,unit:' pt'},
+ stroke:{label:'Line weight',min:.3,max:5,step:.1,unit:' pt'},
  opacity:{label:'Opacity',min:0,max:100,step:1,unit:'%'},
  size:{label:'Drawing size',min:30,max:94,step:1,unit:'%'},
  rotation:{label:'Rotation',min:0,max:360,step:1,unit:'°'},

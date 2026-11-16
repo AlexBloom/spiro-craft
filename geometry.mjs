@@ -32,6 +32,8 @@ export function validateDesign(data){
  if(!['guided','free'].includes(s.mode)||!['inside','outside'].includes(s.curve))throw new Error('Invalid geometry mode.');
  const limits={fold:[6,24],winding:[1,23],outer:[25,240],inner:[5,120],offset:[0,220],size:[30,94],stroke:[.3,10],grainAmount:[0,100],rotation:[0,360],opacity:[0,100]};
  for(const [key,[min,max]] of Object.entries(limits))if(data[key]!==undefined){if(typeof data[key]!=='number'||!Number.isFinite(data[key])||data[key]<min||data[key]>max)throw new Error('Invalid '+key+' setting.');s[key]=data[key];}
+ // Accept older files up to the former 10 pt limit, then apply the current cap.
+ s.stroke=Math.min(s.stroke,5);
  for(const key of ['fold','winding','outer','inner','offset','size'])if(!Number.isInteger(s[key]))throw new Error('Invalid '+key+' setting.');
  if(![6,12,24].includes(s.fold)||s.winding>=s.fold)throw new Error('Invalid symmetry ratio.');
  if(s.mode==='free'&&s.curve==='inside'&&s.inner>=s.outer)throw new Error('The rolling gear must fit inside the fixed gear.');
