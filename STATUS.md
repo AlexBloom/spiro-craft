@@ -2,7 +2,7 @@
 
 - Public repository: https://github.com/AlexBloom/spiro-craft
 - Web: Vite static build. Desktop: Electron for macOS Apple Silicon.
-- Tests: 21 passing, covering geometry, layer operations, save validation, textures, composite exports, and LAN HTTP compatibility.
+- Tests: 23 passing, covering geometry, layer operations, save validation, textures, composite exports, and LAN HTTP compatibility.
 - Mobile layout checked at 320px and 390px. Physical phone gestures are not verified.
 - Public typography: Inter with Helvetica/Arial/sans-serif fallbacks. Eurostile and SignPainter appear only as outlined wordmark/heading SVG artwork. No proprietary fonts are bundled.
 - Production live: https://alexbloom.design/spiro-craft/ (HTTPS enforced). Deployment 43646903532 succeeded; live HTML, JavaScript, CSS, and branding return HTTP 200, and the rendered drawing was visually verified. CI runs on dev/main and PRs; Pages deploys manually from main.
@@ -19,3 +19,5 @@ Line weight update prepared on dev: desktop/mobile sliders cap at 5 pt; older sa
 Removed the layer-name text field beneath the layer list from the shared desktop/mobile panel. Renaming now happens inline by clicking or tapping the layer name. Enter or blur saves; Escape cancels. Existing saved layer names are preserved.
 
 Edge-to-edge workspace prepared on dev: removed outer margins/header/footer; logo and Surprise me moved into the upper-left panel, with mobile equivalents over the canvas. Panels use a muted tone close to the shared drawing-area background. Shared shadcn export panel offers SVG/PNG/JPG, raster-only size buttons, PNG-only transparency checked by default, and Save/Open design. Browser downloads verified SVG, transparent 1200px PNG, and actual JPEG encoding. Production has not been deployed.
+
+Paper tooth is now drawing-wide: project.paperSettings stores one finish/strength; a single filter wraps the composed ink after layer transformations. Preview and exports share the same mapping; background and guides remain outside the texture. Older per-layer finishes migrate, preferring the active textured layer then the first textured layer. Layer selection, additions, and Reset layer preserve global paper settings. Twenty-three tests pass; browser checks verified global toggling, layer switching/reset, saved JSON, and a single shared SVG export filter. Not deployed.

@@ -216,3 +216,5 @@ main{height:var(--editor-viewport,100dvh);max-width:none;margin:0;padding:0;disp
 
 main{height:100dvh}
 @media(max-width:850px){main{height:min(100dvh,var(--editor-viewport,100dvh))}}
+
+.paper-scope{font-size:9px;color:var(--muted);margin-left:5px}

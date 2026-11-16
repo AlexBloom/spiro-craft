@@ -1,9 +1,9 @@
 import {mountExportPanel} from './export-panel.jsx';
 import {mountMobileEditor} from './mobile-editor.jsx';
 import {animateTrace} from './trace.mjs';
-import {createProject,validateProject,activeLayer,addLayer,moveLayer,removeLayer,restoreLayer,layerMarkup,projectSvg} from './layers.mjs';
+import {createProject,validateProject,validateLayerSettings,activeLayer,addLayer,moveLayer,removeLayer,restoreLayer,layerMarkup,projectSvg} from './layers.mjs';
 import {mountLayerPanel} from './layers-panel.jsx';
-import {INKS} from './appearance.mjs';
+import {INKS,inkTextureSvg} from './appearance.mjs';
 import {mountControls} from './controls.jsx';
 mountControls();
 import {defaults,generate,parameters,validWindings} from './geometry.mjs';
@@ -14,7 +14,7 @@ function layerResult(layer){const key=JSON.stringify(layer.settings),cached=geom
 const renderLayers=mountLayerPanel(layerAction);
 const renderMobile=mountMobileEditor({onChange:mobileChange,onAction:id=>$(id).click(),onLayerAction:layerAction});
 const renderExport=mountExportPanel();
-function syncMobile(){const exportProps={format:exportFormat,size:exportSize,transparent:exportTransparent,busy:rasterBusy,canExport:project.layers.some(layer=>layer.visible),onChange:exportChange,onExport:exportArtwork,onSave:saveDesign,onLoad:()=>$('load-file').click()};renderExport(exportProps);renderMobile({project,state:{...state},p:result.p,canUndo:Boolean(removedLayer),exportProps});}
+function syncMobile(){const exportProps={format:exportFormat,size:exportSize,transparent:exportTransparent,busy:rasterBusy,canExport:project.layers.some(layer=>layer.visible),onChange:exportChange,onExport:exportArtwork,onSave:saveDesign,onLoad:()=>$('load-file').click()};renderExport(exportProps);renderMobile({project,state:{...state,...project.paperSettings},p:result.p,canUndo:Boolean(removedLayer),exportProps});}
 function exportChange(key,value){if(key==='format')exportFormat=value;if(key==='size')exportSize=value;if(key==='transparent')exportTransparent=value;syncMobile();}
 function mobileChange(key,value){
  if(key==='mode'){document.querySelector(`[data-mode="${value}"]`).click();return;}
@@ -29,7 +29,10 @@ function toast(message){$('toast').textContent=message;$('toast').classList.add(
 function stopTrace(){if(animation)animation.cancel();animation=null;animating=false;$('animate').textContent='▷ Trace the pattern';const n=project.layers.filter(l=>l.visible).length;$('pattern-status').textContent=n+' visible '+(n===1?'layer':'layers');}
 function update(){
  stopTrace();activeLayer(project).settings=state;result=layerResult(activeLayer(project));const {p,scale}=result;
- $('layer-art').innerHTML=project.layers.map((layer,i)=>layerMarkup(layer,layerResult(layer),{prefix:'preview-layer-'+i,active:layer.id===project.activeLayerId})).join('');
+ const texture=inkTextureSvg(project.paperSettings,{prefix:'drawing'});
+ $('ink-texture').innerHTML=texture;
+ if(texture)$('layer-art').setAttribute('filter','url(#drawing-tooth)');else $('layer-art').removeAttribute('filter');
+ $('layer-art').innerHTML=project.layers.map((layer,i)=>layerMarkup(layer,layerResult(layer),{active:layer.id===project.activeLayerId})).join('');
  renderLayers(project,Boolean(removedLayer));
  $('art').setAttribute('transform',`scale(${zoom})`);
  document.querySelectorAll('[data-mode]').forEach(el=>{const active=el.dataset.mode===state.mode;el.classList.toggle('active',active);el.setAttribute('aria-pressed',active);});
@@ -37,10 +40,11 @@ function update(){
  document.querySelectorAll('[data-fold]').forEach(el=>{const active=+el.dataset.fold===state.fold;el.classList.toggle('active',active);el.setAttribute('aria-pressed',active);});
  $('winding').max=state.fold-1;
  for(const key of ['winding','outer','inner','offset','size','stroke','grainAmount','rotation','opacity']){
-  const el=$(key);el.value=state[key];el.style.setProperty('--progress',`${(state[key]-Number(el.min))/(Number(el.max)-Number(el.min))*100}%`);
-  $(key+'-value').textContent=['offset','grainAmount','opacity'].includes(key)?state[key]+'%':key==='size'?state[key]+'%':key==='stroke'?state[key].toFixed(1)+' pt':key==='rotation'?state[key]+'°':state[key];
+  const value=key==='grainAmount'?project.paperSettings.grainAmount:state[key];
+  const el=$(key);el.value=value;el.style.setProperty('--progress',`${(value-Number(el.min))/(Number(el.max)-Number(el.min))*100}%`);
+  $(key+'-value').textContent=['offset','grainAmount','opacity'].includes(key)?value+'%':key==='size'?value+'%':key==='stroke'?value.toFixed(1)+' pt':key==='rotation'?value+'°':value;
  }
- $('paperGrain').checked=state.paperGrain;$('paper').value=state.paper;$('paper-options').hidden=!state.paperGrain;
+ $('paperGrain').checked=project.paperSettings.paperGrain;$('paper').value=project.paperSettings.paper;$('paper-options').hidden=!project.paperSettings.paperGrain;
  $('curve').value=state.curve;$('guides').checked=state.guides;$('custom-color').value=state.color;
  document.querySelectorAll('[data-color]').forEach(el=>{const active=el.dataset.color===state.color;el.classList.toggle('active',active);el.setAttribute('aria-pressed',active);});
  $('ratio-r').textContent=p.numerator;$('ratio-s').textContent=p.denominator;$('ratio-track').style.width=`${p.R/(p.R+p.r)*100}%`;
@@ -77,7 +81,7 @@ for(const el of document.querySelectorAll('[data-mode]'))el.addEventListener('cl
 for(const el of document.querySelectorAll('[data-fold]'))el.addEventListener('click',()=>{const proportion=state.winding/state.fold;state.fold=+el.dataset.fold;state.winding=validWindings(state.fold).reduce((a,b)=>Math.abs(b/state.fold-proportion)<Math.abs(a/state.fold-proportion)?b:a);update();});
 for(const key of ['winding','outer','inner','offset','size','stroke','grainAmount','rotation','opacity'])$(key).addEventListener('input',e=>{
  let n=Number(e.target.value);
- state[key]=n;
+ if(key==='grainAmount')project.paperSettings.grainAmount=n;else state[key]=n;
  if(state.mode==='free'&&state.curve==='inside'&&state.inner>=state.outer){if(key==='inner')state.inner=state.outer-1;else state.inner=state.outer-1;}
  update();
 });
@@ -85,9 +89,9 @@ $('curve').addEventListener('change',e=>{state.curve=e.target.value;if(state.cur
 for(const el of document.querySelectorAll('[data-color]'))el.addEventListener('click',()=>{state.color=el.dataset.color;update();});
 $('custom-color').addEventListener('input',e=>{state.color=e.target.value;update();});
 $('guides').addEventListener('change',e=>{state.guides=e.target.checked;update();});
-$('paperGrain').addEventListener('change',e=>{state.paperGrain=e.target.checked;update();});
-$('paper').addEventListener('change',e=>{state.paper=e.target.value;update();});
-$('reset').addEventListener('click',()=>{state={...defaults};zoom=1;$('zoom-reset').textContent='100%';update();toast('Layer reset.');});
+$('paperGrain').addEventListener('change',e=>{project.paperSettings.paperGrain=e.target.checked;update();});
+$('paper').addEventListener('change',e=>{project.paperSettings.paper=e.target.value;update();});
+$('reset').addEventListener('click',()=>{state=validateLayerSettings(defaults);zoom=1;$('zoom-reset').textContent='100%';update();toast('Layer reset.');});
 $('randomize').addEventListener('click',()=>{state.stroke=Math.min(state.stroke,2.9);const folds=[6,12,24];state.fold=folds[Math.floor(Math.random()*3)];const choices=validWindings(state.fold);state.winding=choices[Math.floor(Math.random()*choices.length)];state.offset=40+Math.floor(Math.random()*140);if(state.mode==='free'){state.outer=25+Math.floor(Math.random()*216);state.inner=5+Math.floor(Math.random()*Math.min(115,state.outer-5));state.curve=Math.random()>.5?'inside':'outside';}state.color=INKS[Math.floor(Math.random()*INKS.length)].color;update();toast('A little serendipity.');});
 function setZoom(n){zoom=Math.max(.5,Math.min(2,n));$('art').setAttribute('transform',`scale(${zoom})`);$('zoom-reset').textContent=Math.round(zoom*100)+'%';}
 $('zoom-in').addEventListener('click',()=>setZoom(zoom+.1));$('zoom-out').addEventListener('click',()=>setZoom(zoom-.1));$('zoom-reset').addEventListener('click',()=>setZoom(1));

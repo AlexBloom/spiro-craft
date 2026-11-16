@@ -14,7 +14,7 @@ Symmetry mode offers 6, 12, and 24 repeating lobes. Winding includes every integ
 
 The ratio panel reduces R:r by its greatest common divisor, explains rotational symmetry, and shows the revolutions needed to close the path. “Sides” here means repeating lobes rather than straight polygon edges. With the pen centered, the geometry simplifies to a circle.
 
-The default pen palette is red, green, blue, and black, with a custom-color picker. Optional paper tooth textures the ink strokes with Hot press (Smooth), Cold press (Medium), and Rough (Coarse) finishes with adjustable strength. Paper settings persist in saved designs.
+The default pen palette is red, green, blue, and black, with a custom-color picker. Optional paper tooth textures the ink strokes with Hot press (Smooth), Cold press (Medium), and Rough (Coarse) finishes with adjustable strength. Paper tooth applies once across the entire drawing, with one shared finish and strength for every layer. Paper settings persist in saved designs.
 
 Change the drawing size, ink color, and line weight (0.3–5 pt); display construction guides; zoom the preview; or trace the drawing from one moving endpoint. Playback draws visible layers in order, following the distance along each curve. Stopping restores the complete drawing; exports always use complete geometry. The last design is restored locally when you reopen the app. **Save design** downloads an editable JSON file; **Open design** restores it.
 
@@ -22,11 +22,11 @@ The workspace fills the window, with the logo and Surprise me at the top left an
 
 ## Layers
 
-Use **+ Add** in the Layers panel to stack a new pattern. Click a layer to edit its geometry, ink, line weight, size, rotation, opacity, and paper tooth with the main controls. New layers start slightly smaller and use the next kit ink. The top row is the topmost layer.
+Use **+ Add** in the Layers panel to stack a new pattern. Click a layer to edit its geometry, ink, line weight, size, rotation, and opacity with the main controls. Paper tooth belongs to the whole drawing. New layers start slightly smaller and use the next kit ink. The top row is the topmost layer.
 
 Click or tap a layer name to rename it in place. Enter or tapping away saves; Escape cancels. Duplicate the selected layer, move it up or down, hide it with the circle button, or delete it. **Undo delete** restores the most recently deleted layer. A design supports up to 24 layers and always keeps at least one. **Reset** resets only the selected layer; **Surprise me** changes only that layer and caps its line weight at 2.9 pt. Older saved designs with heavier strokes open at the current 5 pt maximum.
 
-SVG, PNG, and JPG exports combine all visible layers in stack order, with each layer’s texture and transformations. Export is disabled when every layer is hidden. Save/Open design preserves the entire stack and selected layer. Older single-pattern JSON files open as one-layer designs.
+SVG, PNG, and JPG exports combine all visible layers in stack order, with independent layer transformations and one shared paper texture mapped across the composition. Export is disabled when every layer is hidden. Save/Open design preserves the entire stack and selected layer. Older single-pattern JSON files open as one-layer designs. Older per-layer paper settings migrate to one shared finish: the active textured layer takes precedence, followed by the first textured layer.
 
 ## Phone preview
 

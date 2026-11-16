@@ -64,7 +64,7 @@ function MobileEditor({project,state,p,canUndo,exportProps,onChange,onAction,onL
  const selected=tool==='geometry'?(geometryOptions.some(([key])=>key===options.geometry)?options.geometry:geometryOptions[0][0]):options[tool];
  return <div className={'mobile-editor'+(tool?' editing':'')}>
   {tool&&<section id="mobile-tool-panel" className="mobile-tool-panel" role="region" aria-label={tools.find(([key])=>key===tool)[1]+' controls'}>
-   <div className="mobile-panel-heading"><div><h2>{tools.find(([key])=>key===tool)[1]}</h2><span><i style={{background:state.color}}/>{active.name||'Untitled layer'}</span></div><Button variant="ghost" className="mobile-done" aria-label="Dismiss controls" onClick={close}>Done <span aria-hidden="true">⌄</span></Button></div>
+   <div className="mobile-panel-heading"><div><h2>{tools.find(([key])=>key===tool)[1]}</h2><span>{tool==='paper'?'All layers':<><i style={{background:state.color}}/>{active.name||'Untitled layer'}</>}</span></div><Button variant="ghost" className="mobile-done" aria-label="Dismiss controls" onClick={close}>Done <span aria-hidden="true">⌄</span></Button></div>
    {tool==='geometry'&&<>
     <div className="mobile-mode" aria-label="Geometry mode"><Button variant="ghost" aria-pressed={state.mode==='guided'} onClick={()=>onChange('mode','guided')}>Symmetry</Button><Button variant="ghost" aria-pressed={state.mode==='free'} onClick={()=>onChange('mode','free')}>Freeform</Button></div>
     <OptionBar options={geometryOptions} value={selected} onChange={choose}/>
