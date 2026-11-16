@@ -1,3 +1,4 @@
+import {mountInkBlend} from './ink-blend.jsx';
 import {mountCanvasRatio} from './canvas-ratio.jsx';
 import {mountExportPanel} from './export-panel.jsx';
 import {mountMobileEditor} from './mobile-editor.jsx';
@@ -16,7 +17,8 @@ const renderLayers=mountLayerPanel(layerAction);
 const renderRatio=mountCanvasRatio();
 const renderMobile=mountMobileEditor({onChange:mobileChange,onAction:id=>$(id).click(),onLayerAction:layerAction});
 const renderExport=mountExportPanel();
-function syncMobile(){const exportProps={format:exportFormat,size:exportSize,transparent:exportTransparent,busy:rasterBusy,canExport:project.layers.some(layer=>layer.visible),onChange:exportChange,onExport:exportArtwork,onSave:saveDesign,onLoad:()=>$('load-file').click()};renderExport(exportProps);renderMobile({project,state:{...state,...project.paperSettings},p:result.p,canUndo:Boolean(removedLayer),exportProps});}
+const renderBlend=mountInkBlend();
+function syncMobile(){const blendProps={...project.inkBlend,onChange:(key,value)=>{project.inkBlend[key]=value;update();}};renderBlend(blendProps);const exportProps={format:exportFormat,size:exportSize,transparent:exportTransparent,busy:rasterBusy,canExport:project.layers.some(layer=>layer.visible),onChange:exportChange,onExport:exportArtwork,onSave:saveDesign,onLoad:()=>$('load-file').click()};renderExport(exportProps);renderMobile({project,state:{...state,...project.paperSettings},p:result.p,canUndo:Boolean(removedLayer),exportProps,blendProps});}
 function exportChange(key,value){if(key==='format')exportFormat=value;if(key==='size')exportSize=value;if(key==='transparent')exportTransparent=value;syncMobile();}
 function mobileChange(key,value){
  if(key==='mode'){document.querySelector(`[data-mode="${value}"]`).click();return;}
@@ -34,7 +36,8 @@ function update(){
  const texture=inkTextureSvg(project.paperSettings,{prefix:'drawing'});
  $('ink-texture').innerHTML=texture;
  if(texture)$('layer-art').setAttribute('filter','url(#drawing-tooth)');else $('layer-art').removeAttribute('filter');
- $('layer-art').innerHTML=project.layers.map((layer,i)=>layerMarkup(layer,layerResult(layer),{active:layer.id===project.activeLayerId})).join('');
+ $('layer-art').style.isolation='isolate';
+ $('layer-art').innerHTML=project.layers.map((layer,i)=>layerMarkup(layer,layerResult(layer),{active:layer.id===project.activeLayerId,blendMode:project.inkBlend.enabled?project.inkBlend.mode:undefined})).join('');
  renderLayers(project,Boolean(removedLayer));
  $('art').setAttribute('transform',`scale(${zoom})`);
  document.querySelectorAll('[data-mode]').forEach(el=>{const active=el.dataset.mode===state.mode;el.classList.toggle('active',active);el.setAttribute('aria-pressed',active);});

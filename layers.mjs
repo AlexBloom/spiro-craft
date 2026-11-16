@@ -1,11 +1,15 @@
 import {createLayerId} from './ids.mjs';
 import {defaults,validateDesign} from './geometry.mjs';
-import {INKS,inkTextureSvg} from './appearance.mjs';
+import {INKS,inkTextureSvg,BLEND_MODES} from './appearance.mjs';
 export const MAX_LAYERS=24;
 const freshId=createLayerId;
+function validateInkBlend(data={enabled:false,mode:'multiply'}){
+ if(!data||typeof data!=='object'||Array.isArray(data)||typeof data.enabled!=='boolean'||!Object.hasOwn(BLEND_MODES,data.mode))throw Error('Invalid ink blend settings.');
+ return {enabled:data.enabled,mode:data.mode};
+}
 function paperSettings(settings=defaults){const {paperGrain,paper,grainAmount}=validateDesign(settings);return {paperGrain,paper,grainAmount};}
 export function validateLayerSettings(settings){const {paperGrain,paper,grainAmount,...layer}=validateDesign(settings);return layer;}
-export function createProject(settings=defaults){const id=freshId();return {paperSettings:paperSettings(settings),application:'Spiro Craft',version:2,activeLayerId:id,layers:[{id,name:'Layer 1',visible:true,settings:validateLayerSettings(settings)}]};}
+export function createProject(settings=defaults){const id=freshId();return {inkBlend:validateInkBlend(),paperSettings:paperSettings(settings),application:'Spiro Craft',version:2,activeLayerId:id,layers:[{id,name:'Layer 1',visible:true,settings:validateLayerSettings(settings)}]};}
 export function validateProject(data){
  if(!data||typeof data!=='object')throw Error('Choose a Spiro Craft design file.');
  if(!Object.hasOwn(data,'layers'))return createProject(validateDesign(data));
@@ -26,7 +30,7 @@ export function validateProject(data){
  if(data.paperSettings!==undefined&&(!data.paperSettings||typeof data.paperSettings!=='object'||Array.isArray(data.paperSettings)))throw Error('Invalid paper settings.');
  const paper=paperSettings(data.paperSettings===undefined?legacyPaper:data.paperSettings);
  for(const layer of layers)layer.settings=validateLayerSettings(layer.settings);
- return {application:'Spiro Craft',version:2,activeLayerId,paperSettings:paper,layers};
+ return {application:'Spiro Craft',version:2,activeLayerId,paperSettings:paper,inkBlend:validateInkBlend(data.inkBlend),layers};
 }
 export function activeLayer(project){return project.layers.find(l=>l.id===project.activeLayerId);}
 export function addLayer(project,{duplicate=false}={}){
@@ -39,12 +43,12 @@ export function addLayer(project,{duplicate=false}={}){
 export function moveLayer(project,id,direction){const i=project.layers.findIndex(l=>l.id===id),to=i+direction;if(i<0||to<0||to>=project.layers.length)return;[project.layers[i],project.layers[to]]=[project.layers[to],project.layers[i]];}
 export function removeLayer(project,id){if(project.layers.length===1)return null;const index=project.layers.findIndex(l=>l.id===id);if(index<0)return null;const [layer]=project.layers.splice(index,1);if(project.activeLayerId===id)project.activeLayerId=project.layers[Math.min(index,project.layers.length-1)].id;return {layer,index};}
 export function restoreLayer(project,removed){if(!removed||project.layers.length>=MAX_LAYERS)return false;project.layers.splice(removed.index,0,removed.layer);project.activeLayerId=removed.layer.id;return true;}
-export function layerMarkup(layer,result,{active=false}={}){
+export function layerMarkup(layer,result,{active=false,blendMode}={}){
  const s=layer.settings;
- return `<g${layer.visible?'':' display="none"'} opacity="${s.opacity/100}" transform="rotate(${s.rotation})"><path${active?' id="geometry"':''} d="${result.path}" fill="none" stroke="${s.color}" stroke-width="${s.stroke*2}" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+ return `<g${blendMode?` style="mix-blend-mode:${blendMode}"`: ''}${layer.visible?'':' display="none"'} opacity="${s.opacity/100}" transform="rotate(${s.rotation})"><path${active?' id="geometry"':''} d="${result.path}" fill="none" stroke="${s.color}" stroke-width="${s.stroke*2}" stroke-linecap="round" stroke-linejoin="round"/></g>`;
 }
 export function projectSvg(project,pixels,{transparent=false,generate}={}){
  const texture=inkTextureSvg(project.paperSettings,{prefix:'drawing'});
  const bg=transparent?'':'<rect x="-500" y="-500" width="1000" height="1000" fill="#f8f7f2"/>';
- return `<svg xmlns="http://www.w3.org/2000/svg" width="${pixels}" height="${pixels}" viewBox="-500 -500 1000 1000"><title>Spiro Craft — layered drawing</title>${texture?'<defs>'+texture+'</defs>':''}${bg}<g${texture?' filter="url(#drawing-tooth)"':''}>${project.layers.filter(l=>l.visible).map(l=>layerMarkup(l,generate(l.settings))).join('')}</g></svg>`;
+ return `<svg xmlns="http://www.w3.org/2000/svg" width="${pixels}" height="${pixels}" viewBox="-500 -500 1000 1000"><title>Spiro Craft — layered drawing</title>${texture?'<defs>'+texture+'</defs>':''}${bg}<g style="isolation:isolate"${texture?' filter="url(#drawing-tooth)"':''}>${project.layers.filter(l=>l.visible).map(l=>layerMarkup(l,generate(l.settings),{blendMode:project.inkBlend?.enabled?project.inkBlend.mode:undefined})).join('')}</g></svg>`;
 }

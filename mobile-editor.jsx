@@ -1,3 +1,4 @@
+import {InkBlend} from './ink-blend.jsx';
 import React,{useEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {Button} from './components/ui/button.jsx';
@@ -47,7 +48,7 @@ function Adjustment({setting,state,onChange,disabled=false}){
   <div className="mobile-range-labels"><span>{config.min}{config.unit||''}</span><span>{config.max}{config.unit||''}</span></div>
  </div>;
 }
-function MobileEditor({project,state,p,canUndo,exportProps,onChange,onAction,onLayerAction}){
+function MobileEditor({project,state,p,canUndo,exportProps,blendProps,onChange,onAction,onLayerAction}){
  const [tool,setTool]=useState(null);
  const [options,setOptions]=useState({geometry:'fold',ink:'color',transform:'size'});
  const triggerRef=useRef(null);
@@ -75,7 +76,7 @@ function MobileEditor({project,state,p,canUndo,exportProps,onChange,onAction,onL
    </>}
    {tool==='ink'&&<><OptionBar options={[['color','Color'],['stroke','Weight'],['opacity','Opacity']]} value={selected} onChange={choose}/>{selected==='color'?<div className="mobile-colors">{INKS.map(({name,color})=><Button key={color} variant="ghost" aria-label={name+' ink'} aria-pressed={state.color===color} className="mobile-ink-swatch" style={{'--swatch':color}} onClick={()=>onChange('color',color)}/>) }<label className="mobile-custom-color" title="Custom ink">+<input type="color" value={state.color} aria-label="Custom mobile ink color" onChange={e=>onChange('color',e.target.value)}/></label></div>:<Adjustment setting={selected} state={state} onChange={onChange}/>}</>}
    {tool==='transform'&&<><OptionBar options={[['size','Size'],['rotation','Rotate']]} value={selected} onChange={choose}/><Adjustment setting={selected} state={state} onChange={onChange}/></>}
-   {tool==='paper'&&<><div className="mobile-paper-toggle"><label htmlFor="mobile-paper-tooth">Paper tooth</label><Switch id="mobile-paper-tooth" checked={state.paperGrain} onCheckedChange={value=>onChange('paperGrain',value)}/></div><div className="mobile-papers">{Object.entries(PAPERS).map(([key,paper])=><Button key={key} variant="ghost" aria-pressed={state.paper===key} onClick={()=>onChange('paper',key)}><b>{paper.name}</b><span>{paper.texture}</span></Button>)}</div><Adjustment setting="grainAmount" state={state} onChange={onChange} disabled={!state.paperGrain}/></>}
+   {tool==='paper'&&<><div className="mobile-paper-toggle"><label htmlFor="mobile-paper-tooth">Paper tooth</label><Switch id="mobile-paper-tooth" checked={state.paperGrain} onCheckedChange={value=>onChange('paperGrain',value)}/></div><div className="mobile-papers">{Object.entries(PAPERS).map(([key,paper])=><Button key={key} variant="ghost" aria-pressed={state.paper===key} onClick={()=>onChange('paper',key)}><b>{paper.name}</b><span>{paper.texture}</span></Button>)}</div><Adjustment setting="grainAmount" state={state} onChange={onChange} disabled={!state.paperGrain}/><InkBlend {...blendProps} id="mobile-ink-blend"/></>}
    {tool==='layers'&&<LayerPanel project={project} canUndo={canUndo} onAction={onLayerAction} compact/>}
    {tool==='export'&&<ExportPanel {...exportProps}/>}
   </section>}

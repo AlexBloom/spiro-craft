@@ -1,3 +1,4 @@
+export const BLEND_MODES=Object.freeze({multiply:'Multiply',darken:'Darken',screen:'Screen',overlay:'Overlay',lighten:'Lighten',difference:'Difference'});
 export const INKS = Object.freeze([
  {name:'Red',color:'#c92e32'},
  {name:'Green',color:'#167447'},
