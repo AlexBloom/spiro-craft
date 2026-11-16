@@ -3,6 +3,7 @@ import {createRoot} from 'react-dom/client';
 import {Button} from './components/ui/button.jsx';
 import {Slider} from './components/ui/slider.jsx';
 import {Switch} from './components/ui/switch.jsx';
+import {ExportPanel} from './export-panel.jsx';
 import {LayerPanel} from './layers-panel.jsx';
 import {INKS,PAPERS} from './appearance.mjs';
 import {defaults} from './geometry.mjs';
@@ -44,7 +45,7 @@ function Adjustment({setting,state,onChange,disabled=false}){
   <div className="mobile-range-labels"><span>{config.min}{config.unit||''}</span><span>{config.max}{config.unit||''}</span></div>
  </div>;
 }
-function MobileEditor({project,state,p,canUndo,exportSize,transparent,pngBusy,onChange,onAction,onLayerAction}){
+function MobileEditor({project,state,p,canUndo,exportProps,onChange,onAction,onLayerAction}){
  const [tool,setTool]=useState(null);
  const [options,setOptions]=useState({geometry:'fold',ink:'color',transform:'size'});
  const triggerRef=useRef(null);
@@ -61,7 +62,6 @@ function MobileEditor({project,state,p,canUndo,exportSize,transparent,pngBusy,on
  const choose=(key)=>setOptions(previous=>({...previous,[tool]:key}));
  const geometryOptions=state.mode==='guided'?[['fold','Symmetry'],['winding','Winding'],['offset','Pen offset'],['guides','Guides']]:[['outer','Fixed gear'],['inner','Rolling gear'],['offset','Pen offset'],['direction','Direction'],['guides','Guides']];
  const selected=tool==='geometry'?(geometryOptions.some(([key])=>key===options.geometry)?options.geometry:geometryOptions[0][0]):options[tool];
- const canExport=project.layers.some(layer=>layer.visible);
  return <div className={'mobile-editor'+(tool?' editing':'')}>
   {tool&&<section id="mobile-tool-panel" className="mobile-tool-panel" role="region" aria-label={tools.find(([key])=>key===tool)[1]+' controls'}>
    <div className="mobile-panel-heading"><div><h2>{tools.find(([key])=>key===tool)[1]}</h2><span><i style={{background:state.color}}/>{active.name||'Untitled layer'}</span></div><Button variant="ghost" className="mobile-done" aria-label="Dismiss controls" onClick={close}>Done <span aria-hidden="true">⌄</span></Button></div>
@@ -75,12 +75,7 @@ function MobileEditor({project,state,p,canUndo,exportSize,transparent,pngBusy,on
    {tool==='transform'&&<><OptionBar options={[['size','Size'],['rotation','Rotate']]} value={selected} onChange={choose}/><Adjustment setting={selected} state={state} onChange={onChange}/></>}
    {tool==='paper'&&<><div className="mobile-paper-toggle"><label htmlFor="mobile-paper-tooth">Paper tooth</label><Switch id="mobile-paper-tooth" checked={state.paperGrain} onCheckedChange={value=>onChange('paperGrain',value)}/></div><div className="mobile-papers">{Object.entries(PAPERS).map(([key,paper])=><Button key={key} variant="ghost" aria-pressed={state.paper===key} onClick={()=>onChange('paper',key)}><b>{paper.name}</b><span>{paper.texture}</span></Button>)}</div><Adjustment setting="grainAmount" state={state} onChange={onChange} disabled={!state.paperGrain}/></>}
    {tool==='layers'&&<LayerPanel project={project} canUndo={canUndo} onAction={onLayerAction} compact/>}
-   {tool==='export'&&<div className="mobile-export">
-    <label className="label" htmlFor="mobile-export-size">IMAGE SIZE</label><select id="mobile-export-size" value={exportSize} onChange={e=>onChange('exportSize',e.target.value)}>{[1200,2400,4800].map(size=><option key={size} value={size}>{size} × {size} px</option>)}</select>
-    <label className="check-label"><input type="checkbox" checked={transparent} onChange={e=>onChange('transparent',e.target.checked)}/>Transparent background</label>
-    <div className="mobile-export-actions"><Button variant="default" className="button" disabled={!canExport} onClick={()=>onAction('export-svg')}>↓ SVG</Button><Button variant="outline" className="button" disabled={!canExport||pngBusy} onClick={()=>onAction('export-png')}>{pngBusy?'Exporting…':'↓ PNG'}</Button></div>
-    <Button variant="ghost" className="mobile-open-design" onClick={()=>onAction('load')}>Open saved design ↗</Button>
-   </div>}
+   {tool==='export'&&<ExportPanel {...exportProps}/>}
   </section>}
   <nav className="mobile-tool-bar" aria-label="Editing tools">{tools.map(([key,label])=><Button key={key} id={'mobile-tool-'+key} variant="ghost" className={'mobile-tool'+(tool===key?' active':'')} aria-label={label+' tools'} aria-expanded={tool===key} aria-controls={tool===key?'mobile-tool-panel':undefined} onClick={event=>{triggerRef.current=event.currentTarget;setTool(current=>current===key?null:key);}}><ToolIcon name={key}/><span>{label}</span>{key==='layers'&&project.layers.length>1&&<i className="mobile-layer-badge">{project.layers.length}</i>}</Button>)}</nav>
  </div>;

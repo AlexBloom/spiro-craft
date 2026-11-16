@@ -1,6 +1,6 @@
 const {app, BrowserWindow, Menu} = require('electron');
 function createWindow() {
- const window = new BrowserWindow({width:1440,height:1000,minWidth:860,minHeight:650,title:'Spiro Craft',backgroundColor:'#f5f3ed',webPreferences:{nodeIntegration:false,contextIsolation:true,sandbox:true}});
+ const window = new BrowserWindow({width:1440,height:1000,minWidth:860,minHeight:650,title:'Spiro Craft',backgroundColor:'#f8f7f2',webPreferences:{nodeIntegration:false,contextIsolation:true,sandbox:true}});
  window.loadFile('dist/index.html');
  window.webContents.setWindowOpenHandler(()=>({action:'deny'}));
  window.webContents.on('will-navigate',e=>e.preventDefault());

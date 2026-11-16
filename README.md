@@ -16,9 +16,9 @@ The ratio panel reduces R:r by its greatest common divisor, explains rotational 
 
 The default pen palette is red, green, blue, and black, with a custom-color picker. Optional paper tooth textures the ink strokes with Hot press (Smooth), Cold press (Medium), and Rough (Coarse) finishes with adjustable strength. Paper settings persist in saved designs.
 
-Change the drawing size, ink color, and line weight (0.3–5 pt); display construction guides; zoom the preview; or trace the drawing from one moving endpoint. Playback draws visible layers in order, following the distance along each curve. Stopping restores the complete drawing; exports always use complete geometry. The last design is restored locally when you reopen the app. **Save design** downloads an editable JSON file; **Open saved design** restores it.
+Change the drawing size, ink color, and line weight (0.3–5 pt); display construction guides; zoom the preview; or trace the drawing from one moving endpoint. Playback draws visible layers in order, following the distance along each curve. Stopping restores the complete drawing; exports always use complete geometry. The last design is restored locally when you reopen the app. **Save design** downloads an editable JSON file; **Open design** restores it.
 
-SVG export is resolution independent. PNG sizes are 1200, 2400, and 4800 pixels square. Both support transparent backgrounds. Paper tooth affects only the ink strokes in both preview and exports. No paper-grain background is generated; transparent exports retain textured ink on transparency. Exports contain the artwork, without canvas dots or construction guides. Zoom only changes the preview; drawing size controls the exported composition.
+The workspace fills the window, with the logo and Surprise me at the top left and Save design beside Export. Select SVG, PNG, or JPG in the compact export panel. SVG is resolution independent; PNG and JPG offer 1200, 2400, and 4800 pixels square. Transparency appears only for PNG and is checked by default. SVG and JPG use the drawing-area background color. Paper tooth affects only the ink strokes in both preview and exports. No paper-grain background is generated; transparent PNG exports retain textured ink on transparency. Exports contain the artwork, without canvas dots or construction guides. Zoom only changes the preview; drawing size controls the exported composition.
 
 ## Layers
 
@@ -26,7 +26,7 @@ Use **+ Add** in the Layers panel to stack a new pattern. Click a layer to edit 
 
 Click or tap a layer name to rename it in place. Enter or tapping away saves; Escape cancels. Duplicate the selected layer, move it up or down, hide it with the circle button, or delete it. **Undo delete** restores the most recently deleted layer. A design supports up to 24 layers and always keeps at least one. **Reset** resets only the selected layer; **Surprise me** changes only that layer and caps its line weight at 2.9 pt. Older saved designs with heavier strokes open at the current 5 pt maximum.
 
-SVG and PNG exports combine all visible layers in stack order, with each layer’s texture and transformations. Export is disabled when every layer is hidden. Save/Open design preserves the entire stack and selected layer. Older single-pattern JSON files open as one-layer designs.
+SVG, PNG, and JPG exports combine all visible layers in stack order, with each layer’s texture and transformations. Export is disabled when every layer is hidden. Save/Open design preserves the entire stack and selected layer. Older single-pattern JSON files open as one-layer designs.
 
 ## Phone preview
 

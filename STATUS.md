@@ -17,3 +17,5 @@ Mobile editing update prepared on dev: canvas-first six-tool dock with one adjus
 Line weight update prepared on dev: desktop/mobile sliders cap at 5 pt; older saved strokes up to 10 pt load at 5 pt. Surprise me retains lighter strokes and caps heavier strokes at 2.9 pt in both geometry modes.
 
 Removed the layer-name text field beneath the layer list from the shared desktop/mobile panel. Renaming now happens inline by clicking or tapping the layer name. Enter or blur saves; Escape cancels. Existing saved layer names are preserved.
+
+Edge-to-edge workspace prepared on dev: removed outer margins/header/footer; logo and Surprise me moved into the upper-left panel, with mobile equivalents over the canvas. Panels use a muted tone close to the shared drawing-area background. Shared shadcn export panel offers SVG/PNG/JPG, raster-only size buttons, PNG-only transparency checked by default, and Save/Open design. Browser downloads verified SVG, transparent 1200px PNG, and actual JPEG encoding. Production has not been deployed.
