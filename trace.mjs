@@ -1,21 +1,24 @@
 // Build one open prefix of the sampled curve. Distance, rather than sample
 // index, controls progress so tight loops and long arcs trace at the same speed.
-export function prepareTrace(points) {
+export function prepareTrace(points,closed=true) {
   const distances = new Float64Array(points.length);
   const ends = new Uint32Array(points.length);
-  let path = '';
+  let path = '',moving=true;
   for (let i = 0; i < points.length; i++) {
+    if(!points[i]){distances[i]=i?distances[i-1]:0;ends[i]=path.length;moving=true;continue;}
     const [x, y] = points[i];
-    path += `${i ? 'L' : 'M'}${x.toFixed(3)},${y.toFixed(3)}`;
+    path += `${moving ? 'M' : 'L'}${x.toFixed(3)},${y.toFixed(3)}`;
     ends[i] = path.length;
-    if (i) distances[i] = distances[i - 1] + Math.hypot(x - points[i - 1][0], y - points[i - 1][1]);
+    if(i) distances[i]=distances[i-1];
+    if (i&&points[i-1]) distances[i] = distances[i - 1] + Math.hypot(x - points[i - 1][0], y - points[i - 1][1]);
+    moving=false;
   }
   const length = distances.at(-1) || 0;
   return {
     length,
     pathAt(progress) {
       if (!points.length) return '';
-      if (progress >= 1) return path + 'Z';
+      if (progress >= 1) return path + (closed?'Z':'');
       if (progress <= 0 || !length) return path.slice(0, ends[0]);
       const target = progress * length;
       let lo = 0, hi = points.length - 1;
@@ -27,6 +30,7 @@ export function prepareTrace(points) {
       if (lo === points.length - 1) return path;
       const span = distances[lo + 1] - distances[lo];
       const t = span ? (target - distances[lo]) / span : 0;
+      if(!points[lo]||!points[lo+1])return path.slice(0,ends[lo]);
       const [x, y] = points[lo], [nx, ny] = points[lo + 1];
       return path.slice(0, ends[lo]) + `L${(x + (nx - x) * t).toFixed(3)},${(y + (ny - y) * t).toFixed(3)}`;
     },
@@ -43,8 +47,8 @@ export function animateTrace(entries, {
   cancelFrame = id => cancelAnimationFrame(id),
 } = {}) {
   let total = 0;
-  const layers = entries.map(({path, points}) => {
-    const trace = prepareTrace(points);
+  const layers = entries.map(({path, points,closed=true}) => {
+    const trace = prepareTrace(points,closed);
     const layer = {path, trace, original: path.getAttribute('d'), start: total, complete: false};
     total += trace.length;
     layer.end = total;

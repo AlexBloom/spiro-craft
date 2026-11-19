@@ -1,4 +1,5 @@
-export const defaults = Object.freeze({mode:'guided',fold:12,winding:5,outer:120,inner:50,curve:'inside',offset:85,size:82,stroke:0.8,color:'#c92e32',guides:false,paperGrain:false,paper:'cold-press',grainAmount:45,rotation:0,opacity:100});
+import {pointDefaults,validatePoints,generatePoints} from './point-geometry.mjs';
+export const defaults = Object.freeze({pointGeometry:pointDefaults,mode:'guided',fold:12,winding:5,outer:120,inner:50,curve:'inside',offset:85,size:82,stroke:0.8,color:'#c92e32',guides:false,paperGrain:false,paper:'cold-press',grainAmount:45,rotation:0,opacity:100});
 export function gcd(a,b){a=Math.abs(Math.round(a));b=Math.abs(Math.round(b));while(b){[a,b]=[b,a%b];}return a;}
 export function validWindings(fold){return Array.from({length:fold-1},(_,i)=>i+1);}
 export function parameters(s){
@@ -12,6 +13,7 @@ export function parameters(s){
 }
 export function pointAt(p,t){const k=p.base/p.r;return [p.base*Math.cos(t)+p.d*Math.cos(k*t),p.base*Math.sin(t)+(p.outside?-1:1)*(-p.d*Math.sin(k*t))];}
 export function generate(s){
+ if(s.mode==='points')return generatePoints(s);
  const p=parameters(s);
  const cycles=p.d===0?1:Math.max(p.turns,Math.abs(p.base)/gcd(p.R,p.r));
  const count=Math.min(60000,Math.max(1800,Math.ceil(cycles*220)));
@@ -28,8 +30,9 @@ export function generate(s){
 export function validateDesign(data){
  if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('Choose a Spiro Craft design file.');
  const s={...defaults};
+ s.pointGeometry=validatePoints(data.pointGeometry);
  for(const key of ['mode','curve'])if(data[key]!==undefined)s[key]=data[key];
- if(!['guided','free'].includes(s.mode)||!['inside','outside'].includes(s.curve))throw new Error('Invalid geometry mode.');
+ if(!['guided','free','points'].includes(s.mode)||!['inside','outside'].includes(s.curve))throw new Error('Invalid geometry mode.');
  const limits={fold:[6,24],winding:[1,23],outer:[25,240],inner:[5,120],offset:[0,220],size:[30,94],stroke:[.3,10],grainAmount:[0,100],rotation:[0,360],opacity:[0,100]};
  for(const [key,[min,max]] of Object.entries(limits))if(data[key]!==undefined){if(typeof data[key]!=='number'||!Number.isFinite(data[key])||data[key]<min||data[key]>max)throw new Error('Invalid '+key+' setting.');s[key]=data[key];}
  // Accept older files up to the former 10 pt limit, then apply the current cap.
