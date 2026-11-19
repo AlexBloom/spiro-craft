@@ -37,7 +37,7 @@ export function addLayer(project,{duplicate=false}={}){
  if(project.layers.length>=MAX_LAYERS)return null;
  const current=activeLayer(project),index=project.layers.indexOf(current),id=freshId();
  let number=1;while(project.layers.some(l=>l.name===`Layer ${number}`))number++;
- const layer={id,name:duplicate?`${current.name} copy`.slice(0,48):`Layer ${number}`,visible:true,settings:duplicate?{...current.settings}:{...validateLayerSettings(defaults),size:Math.max(30,Math.round(current.settings.size*.85)),color:INKS[(INKS.findIndex(ink=>ink.color===current.settings.color)+1)%INKS.length].color}};
+ const layer={id,name:duplicate?`${current.name} copy`.slice(0,48):`Layer ${number}`,visible:true,settings:duplicate?validateLayerSettings(current.settings):{...validateLayerSettings(defaults),size:Math.max(30,Math.round(current.settings.size*.85)),color:INKS[(INKS.findIndex(ink=>ink.color===current.settings.color)+1)%INKS.length].color}};
  project.layers.splice(index+1,0,layer);project.activeLayerId=id;return layer;
 }
 export function moveLayer(project,id,direction){const i=project.layers.findIndex(l=>l.id===id),to=i+direction;if(i<0||to<0||to>=project.layers.length)return;[project.layers[i],project.layers[to]]=[project.layers[to],project.layers[i]];}

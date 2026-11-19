@@ -1,3 +1,5 @@
+import {mountPointControls} from './point-controls.jsx';
+import {validatePoints} from './point-geometry.mjs';
 import {mountInkBlend} from './ink-blend.jsx';
 import {mountCanvasRatio} from './canvas-ratio.jsx';
 import {mountExportPanel} from './export-panel.jsx';
@@ -15,10 +17,12 @@ const geometryCache=new Map();
 function layerResult(layer){const key=JSON.stringify(layer.settings),cached=geometryCache.get(layer.id);if(cached?.key===key)return cached.result;const result=generate(layer.settings);geometryCache.set(layer.id,{key,result});return result;}
 const renderLayers=mountLayerPanel(layerAction);
 const renderRatio=mountCanvasRatio();
+const renderPoints=mountPointControls();
+function changePoints(value){try{state.pointGeometry=validatePoints(value);update();}catch(error){toast(error.message);}}
 const renderMobile=mountMobileEditor({onChange:mobileChange,onAction:id=>$(id).click(),onLayerAction:layerAction});
 const renderExport=mountExportPanel();
 const renderBlend=mountInkBlend();
-function syncMobile(){const blendProps={...project.inkBlend,onChange:(key,value)=>{project.inkBlend[key]=value;update();}};renderBlend(blendProps);const exportProps={format:exportFormat,size:exportSize,transparent:exportTransparent,busy:rasterBusy,canExport:project.layers.some(layer=>layer.visible),onChange:exportChange,onExport:exportArtwork,onSave:saveDesign,onLoad:()=>$('load-file').click()};renderExport(exportProps);renderMobile({project,state:{...state,...project.paperSettings},p:result.p,canUndo:Boolean(removedLayer),exportProps,blendProps});}
+function syncMobile(){const blendProps={...project.inkBlend,onChange:(key,value)=>{project.inkBlend[key]=value;update();}};renderBlend(blendProps);const exportProps={format:exportFormat,size:exportSize,transparent:exportTransparent,busy:rasterBusy,canExport:project.layers.some(layer=>layer.visible),onChange:exportChange,onExport:exportArtwork,onSave:saveDesign,onLoad:()=>$('load-file').click()};renderExport(exportProps);renderMobile({project,state:{...state,...project.paperSettings},p:result.p,canUndo:Boolean(removedLayer),exportProps,blendProps,onPointChange:changePoints});}
 function exportChange(key,value){if(key==='format')exportFormat=value;if(key==='size')exportSize=value;if(key==='transparent')exportTransparent=value;syncMobile();}
 function mobileChange(key,value){
  if(key==='mode'){document.querySelector(`[data-mode="${value}"]`).click();return;}
@@ -41,6 +45,8 @@ function update(){
  renderLayers(project,Boolean(removedLayer));
  $('art').setAttribute('transform',`scale(${zoom})`);
  document.querySelectorAll('[data-mode]').forEach(el=>{const active=el.dataset.mode===state.mode;el.classList.toggle('active',active);el.setAttribute('aria-pressed',active);});
+ $('point-controls').hidden=state.mode!=='points';$('curve-offset').hidden=state.mode==='points';
+ if(state.mode==='points')renderPoints({value:state.pointGeometry,onChange:changePoints,summary:p.summary});
  $('guided-controls').hidden=state.mode!=='guided';$('free-controls').hidden=state.mode!=='free';
  document.querySelectorAll('[data-fold]').forEach(el=>{const active=+el.dataset.fold===state.fold;el.classList.toggle('active',active);el.setAttribute('aria-pressed',active);});
  $('winding').max=state.fold-1;
@@ -55,8 +61,8 @@ function update(){
  $('pattern-status').textContent=visible.length+' visible '+(visible.length===1?'layer':'layers');
  $('animate').disabled=!visible.some(l=>l.settings.opacity>0);
  $('point-count').textContent=count.toLocaleString()+' points';renderRatio(p);
- $('drawing').setAttribute('aria-label',`${visible.length} visible layers. Selected: ${p.fold===Infinity?'Circular':p.fold+'-fold'} Spirograph pattern, gear ratio ${p.numerator} to ${p.denominator}`);
- $('guide-layer').innerHTML=state.guides?`<g fill="none" stroke="#a3a897" stroke-width="1" stroke-dasharray="5 6"><circle r="${p.R*scale}"/><circle cx="0" cy="${-p.base*scale}" r="${p.r*scale}"/><path d="M -500 0 H 500 M 0 -500 V 500" opacity=".4"/><path d="M 0 ${-p.base*scale} V ${-(p.base+p.d)*scale}"/></g><circle cx="0" cy="${-(p.base+p.d)*scale}" r="4" fill="${state.color}"/>`:'';
+ $('drawing').setAttribute('aria-label',state.mode==='points'?`${visible.length} visible layers. ${p.summary}`:`${visible.length} visible layers. Selected: ${p.fold===Infinity?'Circular':p.fold+'-fold'} Spirograph pattern, gear ratio ${p.numerator} to ${p.denominator}`);
+ $('guide-layer').innerHTML=state.guides?(state.mode==='points'?result.guides:`<g fill="none" stroke="#a3a897" stroke-width="1" stroke-dasharray="5 6"><circle r="${p.R*scale}"/><circle cx="0" cy="${-p.base*scale}" r="${p.r*scale}"/><path d="M -500 0 H 500 M 0 -500 V 500" opacity=".4"/><path d="M 0 ${-p.base*scale} V ${-(p.base+p.d)*scale}"/></g><circle cx="0" cy="${-(p.base+p.d)*scale}" r="4" fill="${state.color}"/>`):'';
  $('guide-layer').setAttribute('transform',`rotate(${state.rotation})`);
  syncMobile();
  document.dispatchEvent(new Event('spiro:update'));
@@ -74,7 +80,7 @@ function layerAction(action,value){
  state=activeLayer(project).settings;update();
 }
 for(const el of document.querySelectorAll('[data-mode]'))el.addEventListener('click',()=>{
- if(el.dataset.mode==='free'&&state.mode!=='free'){const p=parameters(state);state.outer=p.R;state.inner=Math.min(120,p.r);}
+ if(el.dataset.mode==='free'&&state.mode==='guided'){const p=parameters(state);state.outer=p.R;state.inner=Math.min(120,p.r);}
  state.mode=el.dataset.mode;if(state.mode==='free'&&state.curve==='inside')state.inner=Math.min(state.inner,state.outer-1);update();
 });
 for(const el of document.querySelectorAll('[data-fold]'))el.addEventListener('click',()=>{const proportion=state.winding/state.fold;state.fold=+el.dataset.fold;state.winding=validWindings(state.fold).reduce((a,b)=>Math.abs(b/state.fold-proportion)<Math.abs(a/state.fold-proportion)?b:a);update();});
@@ -91,7 +97,7 @@ $('guides').addEventListener('change',e=>{state.guides=e.target.checked;update()
 $('paperGrain').addEventListener('change',e=>{project.paperSettings.paperGrain=e.target.checked;update();});
 $('paper').addEventListener('change',e=>{project.paperSettings.paper=e.target.value;update();});
 $('reset').addEventListener('click',()=>{state=validateLayerSettings(defaults);zoom=1;$('zoom-reset').textContent='100%';update();toast('Layer reset.');});
-$('randomize').addEventListener('click',()=>{state.stroke=Math.min(state.stroke,2.9);const folds=[6,12,24];state.fold=folds[Math.floor(Math.random()*3)];const choices=validWindings(state.fold);state.winding=choices[Math.floor(Math.random()*choices.length)];state.offset=40+Math.floor(Math.random()*140);if(state.mode==='free'){state.outer=25+Math.floor(Math.random()*216);state.inner=5+Math.floor(Math.random()*Math.min(115,state.outer-5));state.curve=Math.random()>.5?'inside':'outside';}state.color=INKS[Math.floor(Math.random()*INKS.length)].color;update();toast('A little serendipity.');});
+$('randomize').addEventListener('click',()=>{state.stroke=Math.min(state.stroke,2.9);const folds=[6,12,24];state.fold=folds[Math.floor(Math.random()*3)];const choices=validWindings(state.fold);state.winding=choices[Math.floor(Math.random()*choices.length)];state.offset=40+Math.floor(Math.random()*140);if(state.mode==='free'){state.outer=25+Math.floor(Math.random()*216);state.inner=5+Math.floor(Math.random()*Math.min(115,state.outer-5));state.curve=Math.random()>.5?'inside':'outside';}if(state.mode==='points'){const count=3+Math.floor(Math.random()*22);state.pointGeometry={...state.pointGeometry,count,step:1+Math.floor(Math.random()*(count-1)),innerDiameter:20+Math.floor(Math.random()*45),outerDiameter:100,ringOffset:Math.floor(Math.random()*360)};}state.color=INKS[Math.floor(Math.random()*INKS.length)].color;update();toast('A little serendipity.');});
 function setZoom(n){zoom=Math.max(.5,Math.min(2,n));$('art').setAttribute('transform',`scale(${zoom})`);$('zoom-reset').textContent=Math.round(zoom*100)+'%';}
 $('zoom-in').addEventListener('click',()=>setZoom(zoom+.1));$('zoom-out').addEventListener('click',()=>setZoom(zoom-.1));$('zoom-reset').addEventListener('click',()=>setZoom(1));
 $('animate').addEventListener('click',()=>{
@@ -100,7 +106,7 @@ $('animate').addEventListener('click',()=>{
  const visible=project.layers.map((layer,i)=>({layer,path:paths[i],result:layerResult(layer)})).filter(({layer})=>layer.visible&&layer.settings.opacity>0);
  if(!visible.length)return;
  animating=true;$('animate').textContent='Ⅱ Stop tracing';
- animation=animateTrace(visible.map(({path,result})=>({path,points:result.points})),{
+ animation=animateTrace(visible.map(({path,result})=>({path,points:result.points,closed:result.closed??true})),{
   duration:Math.min(30000,Math.max(4500,visible.reduce((n,{result})=>n+result.p.turns,0)*1100)),
   onLayerChange:(index,total)=>{$('pattern-status').textContent=`Tracing layer ${index} of ${total}`;},
   onFinish:stopTrace,

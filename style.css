@@ -301,3 +301,13 @@ button,.layer-select,.layer-tool,.layer-add,.layer-undo,.export-group button,.de
 .ui-switch-thumb{width:22px;height:22px}.ui-switch-thumb[data-state=checked]{transform:translateX(18px)}
 .swatches button{width:36px;height:36px;min-height:36px;flex:0 0 36px;border-radius:50%;border-width:5px}
 .custom-color{width:36px;height:36px;flex:0 0 36px;font-size:18px}
+.point-controls{margin:14px 0 18px}
+.point-select-label{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;font-size:14px;margin-bottom:14px}
+.point-select-label select,.ring-toolbar select{display:block;width:100%;font-size:14px;min-height:40px;margin:0}
+.point-options{display:flex;overflow:auto;gap:5px;margin:12px 0;scrollbar-width:thin}
+.point-options button{border:1px solid var(--line);border-radius:5px;background:transparent;padding:7px 10px;flex-shrink:0;font-size:14px}
+.point-options button[aria-pressed=true]{background:#e7e2d8;color:var(--orange)}
+.point-summary,.point-limit{font-size:12px;line-height:1.6;color:var(--muted);margin:12px 0 0}
+.ring-toolbar{display:flex;align-items:flex-end;gap:5px;margin-bottom:14px}.ring-toolbar label{flex:1;min-width:0;font-size:14px}.ring-toolbar button{border:1px solid var(--line);border-radius:4px;min-width:36px;background:none}
+.point-controls .ui-slider{height:44px}
+@media(max-width:850px){.point-select-label select,.ring-toolbar select{font-size:16px}.point-controls{margin:8px 0}.point-controls .control-title{font-size:14px}.mobile-mode button{padding-left:3px;padding-right:3px}.point-summary{margin-top:6px}.ratio-tip{max-width:260px}.ratio-tip>span{white-space:normal}}

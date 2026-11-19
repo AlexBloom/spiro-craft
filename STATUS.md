@@ -4,7 +4,7 @@ Latest production release: PR #8 merged at `2551725709fb35a0c90c07d743d441a5e39d
 
 - Public repository: https://github.com/AlexBloom/spiro-craft
 - Web: Vite static build. Desktop: Electron for macOS Apple Silicon.
-- Tests: 25 passing, covering geometry, layer operations, save validation, textures, composite exports, and LAN HTTP compatibility.
+- Tests: 31 passing, covering geometry, layer operations, save validation, textures, composite exports, and LAN HTTP compatibility.
 - Mobile layout checked at 320px and 390px. Physical phone gestures are not verified.
 - Public typography: Inter with Helvetica/Arial/sans-serif fallbacks. Eurostile and SignPainter appear only as outlined wordmark/heading SVG artwork. No proprietary fonts are bundled.
 - Production live: https://alexbloom.design/spiro-craft/ (HTTPS enforced). Deployment 43646903532 succeeded; live HTML, JavaScript, CSS, and branding return HTTP 200, and the rendered drawing was visually verified. CI runs on dev/main and PRs; Pages deploys manually from main.
@@ -27,3 +27,7 @@ Paper tooth is now drawing-wide: project.paperSettings stores one finish/strengt
 Panel refinement prepared on dev: geometry/guides top left, Layers bottom left, Appearance/Ink/Paper on the right. Pattern notes are consolidated into the canvas ratio with hover/focus/tap metadata. Every slider has a numeric precision field with commit/cancel and range/step handling. Menu headings use outlined Eurostile SVGs, without font files. Desktop and 320px/390px browser checks cover manual gear/stroke entry, slider synchronization, cancellation, ratio tips, and asset rendering.
 
 Readable type and ink blend prepared on dev: all supporting text is at least 12px, key controls at least 14px, with larger heading artwork. Mobile tools scroll horizontally. Optional drawing-wide Ink blend below Paper tooth defaults to Multiply when enabled, with Darken/Screen/Overlay/Lighten/Difference choices. Layer blending is isolated from the page/background and happens before shared paper tooth. Browser checks cover desktop/mobile computed font sizes, 320px/390px layouts, mode changes, and distinct Multiply-vs-normal exported PNG pixels.
+
+Point geometry prepared on dev: polygon/star-polygon cycles, alternating stars with inner/outer diameter, and 2–6 independently editable rings with within/matching/stepped/all-to-all connections. Counts and precise sliders are shared across desktop/mobile; density is limited to 2,048 connections per layer. Layers retain independent ring settings; existing save files migrate. Compound tracing avoids bridge lines between disconnected polygons/edges. Not deployed to production.
+
+Point geometry verification: 31 tests pass; static build and refreshed macOS package pass. Isolated headless Chrome checks cover exact polygon cycle counts, star diameters, every ring connection rule, add/remove/duplicate, save, SVG/PNG/JPG downloads, compound tracing restore, 320px/390px mobile controls, disabled dense rules, and switching large ring steps back to polygons. Preview: http://127.0.0.1:63592/ (`npm run dev -- --host 127.0.0.1 --port 63592`, node PID 36038). Other localhost listeners were left untouched.
